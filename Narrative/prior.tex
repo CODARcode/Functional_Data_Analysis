@@ -1,0 +1,233 @@
+\newcommand{\cA}{\mathcal{A}} % algorithm
+\newcommand{\R}{\mathbb{R}} % reals
+\newcommand{\cD}{\mathcal{D}} % domain
+\newcommand{\cC}{\mathcal{C}} % compression
+\newcommand{\Xs}{X^*} % local minimizers
+\newcommand{\cN}{\mathcal{N}} % neighborhood
+
+
+\section{Introduction, Notation, and Prior Work}
+\label{sec:intro}
+
+\subsection{Problem Statement}
+
+We consider local solutions to the optimization problem
+\begin{equation}
+ \min\left\{f(x): x\in \cD\right\}
+ \label{eq:problem}
+\end{equation}
+where $f:\R^n\rightarrow\R$ is a nonlinear function and $\cD\subset \R^n$
+is the feasible region.  We let $\Xs$ denote the finite set of local 
+minimizers to \eqref{eq:problem}.  We note that $x^*$ is a local 
+minimizer of \eqref{eq:problem} if and only if $x^* \in \cD$ and
+\begin{equation}
+f(x^*) \leq f(x) \qquad \forall x \in \mathcal{N}(x^*) \cap \cD
+\end{equation}
+where $\mathcal{N}(x^*)$ is a small neighborhood of $x^*$.  This
+definition applies to all numerical optimization problems, but
+is difficult to verify.  An alternative that can be checked
+for continuously differentiable objective functions is the
+first-order stationarity conditions,
+\begin{equation}
+ \left \langle d, \nabla_x f(x^*)\right \rangle \geq 0, \qquad \forall 
+x^*+d\in \cD.
+\end{equation}
+For convex problems, this statement asserts that there are no 
+feasible, strict descent directions.  In nonconvex cases, this 
+condition is satisfied for all critical points including local 
+minimizers, maximizers, and other stationary points.  In some 
+cases, the curvature of the objective function can be checked 
+using the second-order sufficiency conditions and may imply 
+that the solution returned is a local minimizer.  
+
+For the duration of this report, we make {\bf huge} assumptions 
+that the optimization problem is locally convex for all $x^*$ 
+calculated and that there is a positive lower bound on the 
+distance between all distinct local minimizers.
+
+%% The gradient definition is inadequate for nonconvex cases and 
+%% may require us to assert that the problem is locally convex.
+%% There are two examples:
+%% \begin{enumerate}
+%%   \item Minimizing $x^3$ at $x^*=0$ satisfies the first-order
+%%     stationarity conditions, but the second-order sufficiency
+%%     conditions are not satisfied.
+%%   \item When there are cusps in the feasible region, the 
+%%     first-order stationarity conditions may be satisfied 
+%%     at the point of the cusp.  It also seems possible 
+%%     that the second-order sufficiency conditions could
+%%     be satisfied at that point and we would declare 
+%%     the point of the cusp to be a strict local minimizer.  
+%%     However, neither the set of linear directions nor the
+%%     critical cone is large enough to make this assertion.  
+%%     The directions $d$ point into the interior of the 
+%%     feasible region, but there may be strict improvement 
+%%     in the objective function value along the nonlinear 
+%%     constraints defining the cusp.
+%% \end{enumerate}
+%% The easiest solution is to assume that at all points
+%% calculated, the problem is locally convex.
+%% Constraint qualifications essentially assert that
+%% we can construct a set of linear directions that
+%% is rich enough, but does not address the issue
+%% that the point may only be stationary.
+%%
+%% The lower bound on the distance between the local
+%% solutions means that each local minimizer means
+%% that (a) the solution is locally unique and
+%% (b) there is a finite number of local minimizers
+%% over any compact set.  For the classical problem 
+%% of minimizing 
+%% \[
+%%   \frac{1}{x}\sin\left(\frac{1}{x}\right),
+%% \]
+%% each solution is locally unique, but there are
+%% an infinite number of local solutions on the
+%% interval $[0,t]$ for any $t > 0$.
+
+\subsection{Notation}
+A proposed list of notation to guide the exposition:
+
+\begin{description}
+\item[$\cD\subset \R^n$] The closed feasible region.
+%%  Algebraic representation, assumptions about continuity and differentiability?
+%%  (Q. unrelaxable? \cite{taxonomy17}) 
+%%  (Q.- Assumed compact?) 
+\item[$f:\R^n\rightarrow\R\cup \{\infty\}$] The objective function.
+%%  Continuous on an open set containing $\cD$?  
+%%  Once and twice continuously differentiable on an open set containing $\cD$?
+%%  (Q.- Assumed smooth?)
+\item[$\cA(x^0)$] A specific algorithm (including input parameters) run 
+from starting point $x^0 \in \R^n$.
+%%  (Q. require $x^0 \in \cD$?)
+\item[$\Xs\subset \cD$] The set of local minimizers.
+%%  (Q.- Assumed finite?) 
+\item[$\cC:\R^n: \rightarrow \R^n$] A compression routine.
+\end{description}
+
+\subsection{Approximate Minimizer Notation}
+
+An algorithm is applied to solve \eqref{eq:problem} from a starting 
+point $x^0$.  We assume the algorithm returns a point in a
+neighborhood of a local minimizer and that the optimization 
+problem is convex in a neighborhood containing the returned 
+point and the local minimizer.  In general, this assumption 
+cannot be verified without a priori analysis.  We would
+like to discover when it is satisfied and determine the 
+largest neighborhood containing the returned point and 
+the local minimizer on which the optimization problem 
+is convex.
+
+Our first step is to characterize (approximate) local minimizers. One 
+possibility is that $\Xs(\tau)$ is the set of $x^*\in\cD$ satisfying
+\begin{equation}
+ \left \langle d, \nabla_x f(x^*)\right \rangle \geq -\tau, \qquad \forall 
+x^*+d\in \cD,
+ \label{eq:localCond}
+\end{equation}
+where $\tau\geq 0$ is a tolerance recognizing the approximate nature of 
+minimizers.  Note that $\tau=0$ recovers first-order stationary points 
+for \eqref{eq:problem}.  This definition may require more thought as
+many algorithms require only solutions that are approximately 
+feasible.
+
+%% If we have to resort to constrained first-order conditions and introduce 
+%% Lagrange multipliers, then the constraint qualifications become an 
+%% assumption.
+
+We assume that the algorithm $\cA$ is such that when starting from any $x\in 
+\cD$, it will obtain a point $x^*\in \Xs(\tau)$ where $\Xs(\tau)$ is the
+set of points satisfying \eqref{eq:localCond} with tolerance $\tau$.
+
+Given a local minimizer $x^*\in \Xs(0)$, we also define the acceptable 
+neighborhood of the local minimizer by
+\[
+\cN(x^*) = \left\{ \tilde{x} \; | \; \|\tilde{x} - x^*\| \leq 
+\delta; \;  \left \langle d, \nabla_x f(\tilde{x})\right \rangle \geq -\tau, \; 
+\forall \tilde{x}+d\in \cD \right\},
+\]
+corresponding to those points that are within a distance $\delta\geq 0$ of 
+$x^*$ and that satisfy \eqref{eq:localCond}.
+
+Our goal is to define a (possibly lossy?) compression routine $\cC$ 
+with the goal of preserving the property that compressing $x\in \R^n$ means 
+one of the following (need input from app here):
+\begin{enumerate}
+ \item A local optimization algorithm $\cA$ starting from $\cC 
+\left( x \right)$ will recover the same (approximate) 
+local minimizer as it would when starting from $x$. That is,
+\begin{equation}
+ \cA \left( \cC \left( x \right) \right) =   \cA \left( x \right).
+ \label{eq:fixedPoint2}
+\end{equation}
+
+\item For a(n approximate) local minimizer $x=x^*\in \Xs$, a local optimization 
+algorithm $\cA$ starting from $\cC 
+\left( x^* \right)$ will recover the same (approximate) 
+local minimizer as it would when starting from $x^*$. (That is, 
+\eqref{eq:fixedPoint2} but only for the $x=x^*\in \Xs$.)
+
+\item For a(n approximate) local minimizer $x=x^*\in \Xs$, a local optimization 
+algorithm $\cA$ starting from $\cC 
+\left( x^* \right)$ will recover a point in the acceptable 
+neighborhood of $x^*$. That is,
+\begin{equation}
+ \cA \left( \cC \left( x^* \right) \right) \in \cN(x^*).
+ \label{eq:fixedPoint}
+\end{equation}
+(Note that, provided the compression remains feasible (i.e., $\cC(x)\in \cD$ 
+for any $x\in \cD$), our assumption about the algorithm already gives that for 
+any $x\in \cD$, $\cA \left( \cC \left( x \right) \right) \in \cN(x^*)$ for some 
+$x^*\in \Xs$.)
+\end{enumerate}
+
+\subsection{Prior Work}
+
+\subsubsection{Multi-level Single Linkage}
+
+Multi-level single linkage (MLSL) clustering techniques seem to persist as the 
+standard for provably finite number of local optimizations from a finite 
+number of basins of attraction \cite{Kan1987,Kan1987b}. It is important 
+to note both the assumptions made in those works and the use of 
+objective function (first- and second-order) derivative 
+information. 
+
+More recent modifications that take advantage of information obtained in the 
+course of local optimization runs are described in \cite{WildPhD} and 
+\cite{LarWild14}.
+
+\subsubsection{Local Error Bounds}
+
+\cite{LuoTseng:Error} provides a general approach for analyzing the convergence
+for feasible descent methods based on local error bounds.  They also provide
+a survey of some of the literature.
+
+\subsubsection{Global Error Bounds}
+
+\cite{Pang:Error} provides a survey of error bound for optimization problems.
+This work may only be useful for convex optimization problems and generalized
+equations.  More recent work by Bertsekas and Solodov can be found.
+
+\subsubsection{Perturbation and Sensitivity Analysis}
+
+\cite{BonnansShapiro} provides a complete treatment of perturbation analysis
+for optimization problems.  This book contains much information, but the
+notation used makes it hard to extract what we need.
+
+The notion of weak sharp minima \cite{BurkeFerris:Weak} might also be useful
+for this work.
+
+Robinson has done quite a bit of work in perturbation and sensitivity
+analysis and error bounds.  His profile on google scholar can be
+mined for content.
+
+\subsubsection{Multistart}
+\cite{fernandes2012derivative} might be useful for notations in terms of approximate local minimizer and approximate descent direction.
+
+\subsubsection{Theory}
+
+The Kantorovich Theorem may be useful for these problems.
+
+This is an interesting paper on basins of attraction for problems
+in complex variables \cite{EpureanuGreenside:Fractal}.
+
