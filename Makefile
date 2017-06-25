@@ -1,10 +1,10 @@
-all: basins.pdf
+all: fda.pdf
 
-basins.pdf: *.tex Narrative/*.tex
-	pdflatex -interaction=nonstopmode basins.tex
-	bibtex basins
-	pdflatex -interaction=nonstopmode basins.tex
-	pdflatex -interaction=nonstopmode basins.tex
+fda.pdf: *.tex Narrative/*.tex
+	pdflatex -interaction=nonstopmode fda.tex
+	bibtex fda
+	pdflatex -interaction=nonstopmode fda.tex
+	pdflatex -interaction=nonstopmode fda.tex
 
 .PHONY:
 clean:
@@ -12,4 +12,4 @@ clean:
 
 .PHONY:
 cleanall: clean
-	rm -f basins.pdf
+	rm -f fda.pdf

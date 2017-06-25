@@ -1,41 +1,28 @@
 \begin{abstract}
-Lossy compression of local minimizers to a numerical optimization problem can result 
-in significant savings by utilizing extra knowledge available for numerical 
-optimization problems.  In particular, we tradeoff storage for computation.
-If we can compute the basin of local convergence for a particular numerical
-method and approximate local minimizer, then as long as the iterate we store 
-remains within that basin, we can recover the approximate local minimizer.  
-Moreover, we may be able to bound the computational cost of the recovery by 
-establishing a bound on the number of iterations of the local method
-required.  Our initial investigation will focus on unconstrained and
-bound-constrained numerical optimization methods and will start with
-a literature search on perturbation analysis and error bounds.
+The process of gaining ever finer resolution from instruments and ever
+finer discretization in simulations cannot be solved with higher
+bandwidth and more clock cycles in computation alone. In traditional
+approaches to analysis of such correlated data, additional dimensions
+are used to represent finer discretisation. Paradigm changing
+approaches that utilize modern statistical science and mathematics are
+needed. Functional data analysis (FDA) is an approach that replaces
+finer discretization and finer resolution with mathematical
+complexity, effectively taking the dimensionality to infinity and
+operating in the Hilbert space of functions.
 
-We expect that these methods will be beneficial to the Exaalt project, which needs 
-to store all the local minimizers computed in a long molecular dynamics simulation.  
-The number of local minimizers is exponential in the number of atoms and they are 
-targeting problems with 2,000 atoms and each local minimizer needs to store 
-10,000 values.  While each individual minimizer is a small number values, 
-we need to conserve space as there is an enormous number of them.  Beyond 
-storing the values, they are interested in clusters of local minimizers and 
-the transition between such clusters; transitions between clusters of 
-clusters may be of interest as well.  Additional analysis and methods
-to compute transition states and minimal energy pathways may also be
-of interest.  Our initial investigations will use simple systems
-and/or data previously generated and stored.
+While FDA methods were developed primarily to access new analysis
+information due to their infinite dimensionality and functional
+nature, we anticipate that they have potentially strong data reduction
+properties. The result is a set of custom basis functions whose
+already much smaller representation can be further reduced with
+losless compression techinques.
 
-Provided that we can identify the mathematics required to compute the 
-basins of local convergence for the local numerical optimization methods 
-employed by the Exaalt team, we will produce prototype implementations
-and study their scalability and work toward reducing the computational
-costs as much as possible, perhaps using hierarchical methods.  We will 
-then evaluate the tradeoffs between computation of the basins, storage 
-of the results, and recomputation of the local minimizers.  We will 
-also evaluate the downstream cluster analysis to determine if we
-need to recompute the local minimizers or if the methods are
-stable when using the approximate local minimizers.  If a good 
-tradeoff can be made and the methods are scalable, we will move 
-the project into the next step of developing an online capability.
-
+We approach the development of FDA techniques in CODAR for both a data
+analysis and a data reduction purpose. The most frequently used FDA
+technique is Principal Components Analysis (PCA). We first develop
+interpretable PCA techniques for XGC data in collaboration with fusion
+scientists, addressing mostly data analysis aspects. On a longer
+time frame, we transition these techniques to the functional domain
+while addressing both analysis and data reduction goals.
 \end{abstract}
 
