@@ -1,11 +1,11 @@
 \newpage
 \section{Application to Fusion Simulation Data}
 \label{sec:xgc}
-We report on our application to fusion
-simulation data from the XGC code \cite{??}. The resulting data has
-480 time steps, each with 32 equispaced polloidal slices. We perform 4
-PCA decompositions of density potential ``dpot'' indexed by time steps
-100, 200, 300, and 400, by taking the index time step and 15 more steps
+We report on our application to fusion simulation data from the XGC
+code \cite{??}. The resulting data has 480 time steps, each with 32
+equispaced polloidal slices. We perform 4 PCA decompositions of the
+{\it density potential} (dpot) variable indexed by time steps 100,
+200, 300, and 400, by taking the index time step and 15 more steps
 following it to get a total of $32\times 16$ slices, each with 232,011
 gridpoints. This results in a $256\times 232,011$ matrix, which is
 very skinny and takes roughly 1 GB memory.
@@ -20,13 +20,15 @@ principal components.
 \subsection{Computation with Fast Skinny PCA Algorithm}
 Our algorithm is implemented in R with pbdR infrastructure
 \cite{Schmidt2017}, which for the specific skinny matrix computations
-utilizes MPI, LAPACK, and ADIOS library support. Our runs were done on
-Oak Redge Leadership Computing Facility's (OLCF) Rhea, which is a 512
-node commodity cluster with dual Intel® Xeon® E5-2650 @ 2.0 GHz giving
-16 cores per node. Our runs are on 8 nodes (128 cores) and take
+is a workflow driving MPI, LAPACK, BLAS, and ADIOS library
+support. Our runs are done on Oak Redge Leadership Computing
+Facility's (OLCF) Rhea, which is a 512 node commodity cluster with
+dual Intel® Xeon® E5-2650 @ 2.0 GHz giving 16 cores per node.
+
+Running on 8 nodes (128 cores), it takes
 approximately 6 to 8 seconds to read the data from a lustre file
 system, and under 2 seconds to perform the decomposition. Production
-of 512 resulting plots of right singular vectors and scree plots, like
+of the 512 resulting plots of right singular vectors and scree plots, like
 those shown in Figures~\ref{fig:100} to \ref{fig:400}, takes roughly
 100 seconds.
 
@@ -34,7 +36,12 @@ We expect that the resulting speeds are more than sufficient to keep
 up with a running XGC simulation, which takes roughly four seconds per
 time step \cite{XGCpertimestep}, giving 64 seconds for our 16 step
 ensemble. We envision the decomposition code running as a service
-connected to an ADIOS in memory staging file system. Next we comment
+connected to an ADIOS in memory staging file system. In this service
+scenario, reading the data should be faster than what we experience
+here from a lustre file system. Also, instead of producing plots, the
+decomposed data reduced to some smaller number of components ($\ll$
+512) would be output to the file system in a time that would be less
+than the 6 to 8 seconds taken here to read the data. Next, we comment
 on the results in Figures~\ref{fig:100} to \ref{fig:400}.
 \begin{figure}[tbp]
   \begin{center}
@@ -170,15 +177,16 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
 
 The bottom two scree graphs in each figure show the eigenvalues (squares of
 the singular values) in decreasing order. The left graph shows all 512
-eigenvalues on linear scale and the right graph shows the top 50
+eigenvalues on a linear scale and the right graph shows the top 50
 eigenvalues on a log10 scale.
 
 The right singular vectors correspond to and are plotted on the
-simulation gridpoints. Each plot in reading order (left to right and
-then top to bottom) corresponds to the eigenvalues in decreasing
-order. The units of the displayed vectors are the same as for dpot and
-legend to the right of each shows the values that correspond to the
-colors.
+polloidal slice gridpoints, producing the circular images in the
+figures. Each image in reading order (left to right and then top to
+bottom) corresponds to the eigenvalues in decreasing order. The units
+of the displayed vectors are the same as for density potential (dpot)
+and the legend to the
+right of each shows the dpot values that correspond to the colors.
 
 We have the following observations about the figures:
 \begin{itemize}
@@ -196,15 +204,15 @@ We have the following observations about the figures:
 
 \subsection{Relationship to Tensor Decomposition}
 Because our row dimension includes both time and space (toroidal angle
-by time: $32\times 16$) and because we have stationarity over space
-and over the short time period, there is a relationship between this
+by time: $32\times 16$), there is a relationship between this
 ``stacked'' matrix PCA decomposition and the three dimensional tensor
 ($32\times 16\times 232,011$) decomposition. Namely, the stacked left
 singular vectors ($32\times 16 = 512$) along with the spatial patterns
 of the right singular vectors are the first iteration of the tensor
 decomposition, sometimes referred to as the higher order singular
 value decomposition (HOSVD) \cite[p.1264]{DeLathauwer2000}. That is,
-the right singular vectors from our SVD are the rightmost singular
+the right singular vectors from our SVD, displayed as images, are the
+rightmost singular 
 vectors of the HOSVD. Here we describe some initial tensor
 decomposition results for a similar but smaller data set.
 
