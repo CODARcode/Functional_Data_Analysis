@@ -1,0 +1,42 @@
+\section{Introduction}
+\label{sec:intro}
+Multivariate analysis is often applied to data over a continuous
+domain by treating a finite sequence in the domain as dimensions. In a
+simulation science context, the finite sequence is typically a set of
+grid points in space or a set of time points. Possibly the most common
+example of such multivariate analysis is empirical orthogonal
+functions (EOF) analysis in climate science
+\cite{Storch2001,Wackernagel2003,PutmanEtAl00Downscaling}. This is
+essentially a principal components analysis, where the extracted
+components can be mapped back to the contimuous domain as coherent
+structures (or data-determined basis functions) that represent the
+main sources of variability \cite{Jolliffe2002}. While the central
+computation is a singular value decomposition, there are many nuances
+and choices that enter the analysis. These include important choices
+of dimension over which variability is studied, preprocessing to
+remove known variability sources, and transformations for treating
+highly skewed data.
+
+The maturity multivariate analysis and nonparametric methods such as
+splines and penalized regression (for example, see
+\cite{Wasserman2006,Hastie2009}) in modern statistical science
+recently lead to the development of {\em functional data analysis}
+(FDA) \cite{Ramsey2005,Ferraty2006,Ramsey2009,Hsing2015}.  This
+development is particularly compelling from the viewpoint of managing
+continually increasing data rates in data producing technologies such
+as simulation science.
+
+As first step toward deploying functional data analysis algorithms, we
+develop fast algorithms for principal components analysis and
+associated data transformations. These provide an ability to extract
+data-determined linear basis functions that describe major sources of
+variability and provide an avenue for data reduction.
+
+We select one multivariate method, principal components analysis
+(PCA) \cite{Jolliffe2002}, which has very wide and long-standing
+applicability in data analysis and is already well developed in the
+functional domain. A common use of PCA is to compute a set of custom
+linear basis functions for spatial time series. This is particularly
+common in climate science, where it is known as empirical orthogonal
+functions.  (see, for example, \cite{JOC2007}).
+

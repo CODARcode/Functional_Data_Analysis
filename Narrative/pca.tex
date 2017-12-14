@@ -1,0 +1,181 @@
+\section{Computing Principal Components Analysis (PCA)}
+\label{sec:pca}
+Starting with an $m\times n$ matrix, it is useful to think of its rows
+as $m$ points in $n$-dimensional space. Then intuitively, PCA can be
+interpreted as a technique that ``finds where the data lives.''
+Its computation has two distinct phases: (i) move the origin to the
+center of the data (and optionally scale its coordinates to have
+variance 1) and (ii) rotate the coordinate axes in the directions of
+largest variability subject to keeping them orthogonal.
+
+The first phase is given by
+\begin{displaymath}
+  X_c = X - n^{-1}11^TX, \mbox{ and if scaled }
+  X_s = X_c \mbox{diag}(X_c^TX_c)^{-1}
+\end{displaymath}
+computed by simply subtracting column means and dividing by their
+standard deviation. The second phase (we drop the subscript in $X_c$
+and $X_s$) is a singular value decomposition given by
+\begin{equation}
+  X = U D V^T,
+  \label{eq:svd}
+\end{equation}
+where $U$ is an $m \times \min(m,n)$ matrix with orthonormal columns,
+$D$ is a diagonal rank $\min(m,n)$ matrix, and $V$ is an
+$n\times\min(m,n)$ matrix with orthonormal rows. The columns of $U$
+are the {\it left} singular vectors and the columns of $V$ are the
+{\it right} singular vectors.
+
+\subsection{Fast PCA from Random Projections}
+
+A number of recent developments utilize random projections to
+approximate subspaces. A notable set of such results is described in
+\cite{Halko2011} including computation of the truncated singular value
+decomposition. Specifically, the ``Prototype for Randomized SVD'' and
+``Algorithm 4.4: Randomized Subspace Iteration'' from \cite{Halko2011}
+are fast when only a few principal components are reauired. We
+implemented this algorithm in the GitHub package RBigData/pbdML, which
+is part of the pbdR project \cite{Schmidt2017}, and subsequently in
+C++. The C++ version resides on the CODARcode/ALPCA GitHub private
+project repository as its {\it rsvd} component. In application of fast
+PCA to fusion simulation data, which we discuss later in this report,
+we found that broader flexibility of the data analysis system R and
+our pbdR infrastructure was still needed beyond the C++ algorithm
+implementation. The conversion to C++ was somewhat premature but
+mainly insufficient for broader tasks that require data wrangling. At
+the same time, new developments in the pbdR project brought even
+faster methodology to PCA computation, when the imput matrix is
+skinny. We describe this methodology next.
+
+\subsection{Faster Computation with Skinny Matrices}
+In many applications, the $m\times n$ matrix $X$ entering the
+truncated SVD computation (\ref{eq:svd}) has one dimension that is
+much smaller than the other. Consider the related eigenvalue
+decompositions of the crossproducts matrices
+\begin{equation}
+  X^TX = V D U^T U D V^T = V D^2 V^T,
+  \label{eq:xtx}
+\end{equation}
+when $m \gg n$,
+and
+\begin{equation}
+  XX^T = U D V^T V D U^T = U D^2 U^T,
+  \label{eq:xxt}
+\end{equation}
+when $m \ll n$.
+In each case we can recover the missing singular vectors with
+\begin{displaymath}
+  U = XVD^{-1}
+\end{displaymath}
+and
+\begin{equation}
+  V^T = D^{-1}U^TX \mbox{ or } V = X^TUD^{-1}.
+  \label{eq:vtorv}
+\end{equation}
+The decomposition (\ref{eq:xtx}) is an $n\times n$ size problem and
+decomposition (\ref{eq:xxt}) is an $m\times m$ size problem. In very
+large problems, whenever a square matrix of the smaller dimension fits
+in the memory of a single node, the eigenvalue decompositions provide
+an avenue for a quick solution. That is, when $X$ is either very tall
+and skinny, $m \gg n$, or when it is very wide and short, $m \ll n$, a
+fast solution is available. While the crossproducts approach squares
+the condition number of the problem, this is mitigated by the fact
+that we are interested only in the largest singular values and their
+associated singular vectors.
+
+First, let's take the case when $X$ is tall and skinny, $m \gg
+n$. It is natural to partition the matrix by blocks of rows on a
+parallel processor as the larger $m$ gives more potential
+scalability. So
+\begin{displaymath}
+  X =
+  \left[
+    \begin{array}{c}
+      X_1 \\ X_2 \\ \vdots \\ X_p
+    \end{array} \right],
+\end{displaymath}         
+on $p$ processors. Then
+\begin{displaymath}
+  X^T X = \sum_{i=1}^p X_i^TX_i
+\end{displaymath}
+is a local operation on each processor, followed by a matrix allreduce
+communication. At this point, every processor can compute $D$ and $V$
+from a local eigendecomposition of $X^TX$ as shown in (\ref{eq:xtx}),
+replicated on every processor. Having $D$ and $V$ on every processor,
+we can compute
+\begin{displaymath}
+  U = XVD^{-1} =
+  \left[
+    \begin{array}{c}
+      X_1 \\ X_2 \\ \vdots \\ X_p
+    \end{array}
+  \right] V D^{-1} =
+  \left[
+    \begin{array}{c}
+      X_1 V D^{-1} \\ X_2 V D^{-1} \\ \vdots \\ X_p V D^{-1}
+    \end{array} \right] =
+  \left[
+    \begin{array}{c}
+      U_1 \\ U_2 \\ \vdots \\ U_p
+    \end{array} \right]
+\end{displaymath}
+with local operations resulting in a tall and skinny matrix
+distributed by the same blocks of rows as $X$.
+     
+Next, let's consider the wide and short case when $m \ll n$. It is
+natural to partition the matrix by columns across $p$ processors
+\begin{displaymath}
+  X = \left[ X_1 | X_2 | \cdots | X_p \right]
+\end{displaymath}
+on $p$ processors. In this case, we compute
+\begin{displaymath}
+  X X^T = \left[ X_1 | X_2 | \cdots | X_p \right]
+  \left[
+    \begin{array}{c}
+      X_1^T \\ X_2^T \\ \vdots \\ X_p^T
+    \end{array} \right] =
+  \sum_{i=1}^p X_iX_i^T,
+\end{displaymath}
+which again is a local operation on each processor, followed by a
+matrix allreduce communication. Now we can do a local
+eigendecomposition (\ref{eq:xxt}) replicated on every processor. This produces
+$D$ and $U$ on every processor. At this point, we have a choice to produce
+$V^T$ distributed as blocks of columns or $V$ distributed as blocks of
+rows. That is,
+\begin{eqnarray}
+  V^T & = & D^{-1}U^TX \nonumber\\
+      & = & D^{-1}U^T \left[ X_1 | X_2 | \cdots | X_p \right] \nonumber\\
+      & = & \left[ D^{-1}U^TX_1 | D^{-1}U^TX_2 | \cdots | D^{-1}U^TX_p
+            \right]\nonumber\\
+      & = & \left[ V_1^T | V_2^T | \cdots | V_p^T \right] \nonumber
+\end{eqnarray}
+or
+\begin{displaymath}
+  V  =  X^TUD^{-1}
+     =    \left[
+          \begin{array}{c}
+            X_1^T \\ X_2^T \\ \vdots \\ X_p^T
+          \end{array}
+          \right]
+          UD^{-1}
+     =  \left[
+          \begin{array}{c}
+            X_1^TUD^{-1} \\ X_2^TUD^{-1} \\ \vdots \\ X_p^TUD^{-1}
+          \end{array}
+          \right]
+     =  \left[
+          \begin{array}{c}
+            V_1 \\ V_2 \\ \vdots \\ V_p
+          \end{array}
+          \right]. 
+\end{displaymath}
+We show two choices because in some software it is customary to return
+$V$ and in other software it is $V^T$, possibly because of the
+transpose shown in (\ref{eq:svd}). The computational complexity is the
+same.
+
+The implementation of this methodology is in the GitHub package {\it
+  RBigData/kazaam}. This was performed under the pbdR project and will
+be reported elsewhere. We describe below how the CODAR project is
+using this PCA implementation for the analysis of fusion simulation
+data. 

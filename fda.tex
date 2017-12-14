@@ -1,10 +1,20 @@
 \documentclass[10pt]{article}
 \input{preamble}
+\usepackage[multidot]{grffile}
+
+\newcommand{\cA}{\mathcal{A}} % algorithm
+\newcommand{\R}{\mathbb{R}} % reals
+\newcommand{\cD}{\mathcal{D}} % domain
+\newcommand{\cC}{\mathcal{C}} % compression
+\newcommand{\Xs}{X^*} % local minimizers
+\newcommand{\cN}{\mathcal{N}} % neighborhood
  
-\newcommand\TITLE{Functional Data Analysis}
-\newcommand\AUTHOR{George Ostrouchov \and Jong Choi}
+\newcommand\TITLE{Multivariate and Functional Data Analysis}
+\newcommand\AUTHOR{George Ostrouchov \and Jong Choi \and Drew Schmidt}
 \newcommand\ID{CODAR-01}
 \newcommand\DATE{\today}
+\newcommand{\slc}[2]{\includegraphics[trim=1.5cm 1.7cm 0.1cm 1.5cm,clip,width=#1\textwidth]{#2}}
+\newcommand{\scr}[2]{\includegraphics[trim=0cm 0cm 0cm 0cm,clip,width=#1\textwidth]{#2}}
 
 \title{\TITLE{}}
 \author{\AUTHOR{}}
@@ -23,7 +33,10 @@
 \maketitle
 
 \input{Narrative/abstract}
-\input{Narrative/prior}
+\input{Narrative/introduction}
+\input{Narrative/pca}
+\input{Narrative/xgc}
+\input{Narrative/conclusion}
 
 \clearpage
 \bibliographystyle{plain}
