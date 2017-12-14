@@ -1,11 +1,11 @@
 \newpage
 \section{Application to Fusion Simulation Data}
 \label{sec:xgc}
-We report on our application of the skinny matrix version to fusion
+We report on our application to fusion
 simulation data from the XGC code \cite{??}. The resulting data has
 480 time steps, each with 32 equispaced polloidal slices. We perform 4
 PCA decompositions of density potential ``dpot'' indexed by time steps
-100, 200, 300, and 400, by taking the index time step and 15 more
+100, 200, 300, and 400, by taking the index time step and 15 more steps
 following it to get a total of $32\times 16$ slices, each with 232,011
 gridpoints. This results in a $256\times 232,011$ matrix, which is
 very skinny and takes roughly 1 GB memory.
@@ -15,22 +15,20 @@ motivated by the need to view its rows as sample points from a
 stationary distribution. It is reasonable to assume that the slices in
 a single time step are from the same high dimensional (specifically,
 232,011 dimensional) distribution that can be characterized by its top
-principal components. Because our row dimension includes both time and
-space (toroidal angle), there is a relationship between this
-``stacked'' matrix PCA decomposition and the three dimensional tensor
-decomposition. We describe some initial tensor decomposition results
-for a similar data set in a subsection that follows.
+principal components.
 
+\subsection{Computation with Fast Skinny PCA Algorithm}
 Our algorithm is implemented in R with pbdR infrastructure
 \cite{Schmidt2017}, which for the specific skinny matrix computations
-utilizes MPI, LAPACK, and ADIOS library support. Our runs on OLCF
-Rhea, which is a 512 node commodity cluster with dual Intel® Xeon®
-E5-2650 @ 2.0 GHz giving 16 cores per node. Our runs are on 8 nodes
-(128 cores) and take approximately 6 to 8 seconds to read the data
-from a lustre file system, and under 2 seconds to perform the
-decomposition. Production of 512 resulting plots of right singular
-vectors and scree plots, like those shown in Figures~\ref{fig:100} to
-\ref{fig:400}, takes roughly 100 seconds.
+utilizes MPI, LAPACK, and ADIOS library support. Our runs were done on
+Oak Redge Leadership Computing Facility's (OLCF) Rhea, which is a 512
+node commodity cluster with dual Intel® Xeon® E5-2650 @ 2.0 GHz giving
+16 cores per node. Our runs are on 8 nodes (128 cores) and take
+approximately 6 to 8 seconds to read the data from a lustre file
+system, and under 2 seconds to perform the decomposition. Production
+of 512 resulting plots of right singular vectors and scree plots, like
+those shown in Figures~\ref{fig:100} to \ref{fig:400}, takes roughly
+100 seconds.
 
 We expect that the resulting speeds are more than sufficient to keep
 up with a running XGC simulation, which takes roughly four seconds per
@@ -195,6 +193,22 @@ We have the following observations about the figures:
   their weights need to be output to reconstruct the simulation. This
   is a roughly $5\times$ reduction.
 \end{itemize}
+
+\subsection{Relationship to Tensor Decomposition}
+Because our row dimension includes both time and space (toroidal angle
+by time: $32\times 16$) and because we have stationarity over space
+and over the short time period, there is a relationship between this
+``stacked'' matrix PCA decomposition and the three dimensional tensor
+($32\times 16\times 232,011$) decomposition. Namely, the stacked left
+singular vectors ($32\times 16 = 512$) along with the spatial patterns
+of the right singular vectors are the first iteration of the tensor
+decomposition, sometimes referred to as the higher order singular
+value decomposition (HOSVD) \cite[p.1264]{DeLathauwer2000}. That is,
+the right singular vectors from our SVD are the rightmost singular
+vectors of the HOSVD. Here we describe some initial tensor
+decomposition results for a similar but smaller data set.
+
+The smaller data set is ...
 
 
 \newpage

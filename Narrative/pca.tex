@@ -2,11 +2,12 @@
 \label{sec:pca}
 Starting with an $m\times n$ matrix, it is useful to think of its rows
 as $m$ points in $n$-dimensional space. Then intuitively, PCA can be
-interpreted as a technique that ``finds where the data lives.''
-Its computation has two distinct phases: (i) move the origin to the
-center of the data (and optionally scale its coordinates to have
-variance 1) and (ii) rotate the coordinate axes in the directions of
-largest variability subject to keeping them orthogonal.
+interpreted as a technique that finds where the data lives and what
+are its major patterns of variability.  Its computation has two
+distinct phases: (i) move the origin to the center of the data (and
+optionally scale its coordinates to have variance 1) and (ii) rotate
+the coordinate axes in the directions of largest variability subject
+to keeping them orthogonal.
 
 The first phase is given by
 \begin{displaymath}
@@ -15,7 +16,7 @@ The first phase is given by
 \end{displaymath}
 computed by simply subtracting column means and dividing by their
 standard deviation. The second phase (we drop the subscript in $X_c$
-and $X_s$) is a singular value decomposition given by
+and $X_s$) is a singular value decomposition (SVD) given by
 \begin{equation}
   X = U D V^T,
   \label{eq:svd}
@@ -33,7 +34,7 @@ approximate subspaces. A notable set of such results is described in
 \cite{Halko2011} including computation of the truncated singular value
 decomposition. Specifically, the ``Prototype for Randomized SVD'' and
 ``Algorithm 4.4: Randomized Subspace Iteration'' from \cite{Halko2011}
-are fast when only a few principal components are reauired. We
+are fast when only a few principal components are required. We
 implemented this algorithm in the GitHub package RBigData/pbdML, which
 is part of the pbdR project \cite{Schmidt2017}, and subsequently in
 C++. The C++ version resides on the CODARcode/ALPCA GitHub private
@@ -45,11 +46,11 @@ implementation. The conversion to C++ was somewhat premature but
 mainly insufficient for broader tasks that require data wrangling. At
 the same time, new developments in the pbdR project brought even
 faster methodology to PCA computation, when the imput matrix is
-skinny. We describe this methodology next.
+skinny. We describe the SVD component of this methodology next.
 
 \subsection{Faster Computation with Skinny Matrices}
 In many applications, the $m\times n$ matrix $X$ entering the
-truncated SVD computation (\ref{eq:svd}) has one dimension that is
+SVD computation (\ref{eq:svd}) has one dimension that is
 much smaller than the other. Consider the related eigenvalue
 decompositions of the crossproducts matrices
 \begin{equation}
