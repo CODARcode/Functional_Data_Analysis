@@ -1,4 +1,3 @@
-\newpage
 \section{Application to Fusion Simulation Data}
 \label{sec:xgc}
 We report on our application to fusion simulation data from the XGC
@@ -72,7 +71,10 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
     \scr{0.35}{Figs/p100/scree.pdf}
     \scr{0.35}{Figs/p100/scree100log.pdf}
   \end{center}
-  \caption{Time steps 100 to 115}
+  \caption{Top 24 principal component images (ordered left to right,
+    then top to bottom), capturing 62\% variability of time steps 100
+    to 115 and corresponding scree plot of eigenvalues presented in
+    three ways}
   \label{fig:100}
 \end{figure}
 
@@ -105,7 +107,10 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
     \scr{0.35}{Figs/p200/scree.pdf}
     \scr{0.35}{Figs/p200/scree100log.pdf}
   \end{center}
-  \caption{Time steps 200 to 215}
+  \caption{Top 24 principal component images (ordered left to right,
+    then top to bottom), capturing 63\% variability of time steps 200
+    to 215 and corresponding scree plot of eigenvalues presented in
+    three ways}
   \label{fig:200}
 \end{figure}
 
@@ -137,7 +142,10 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
     \slc{0.245}{Figs/p300/pc00024.00300.png}\\
     \scr{0.35}{Figs/p300/scree.pdf}
     \scr{0.35}{Figs/p300/scree100log.pdf}
-  \caption{Time steps 300 to 315}
+    \caption{Top 24 principal component images (ordered left to right,
+      then top to bottom), capturing 51\% variability of time steps
+      300 to 315 and corresponding scree plot of eigenvalues presented
+      in three ways}
   \end{center}
   \label{fig:300}
 \end{figure}
@@ -170,7 +178,10 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
     \slc{0.245}{Figs/p400/pc00024.00400.png}\\
     \scr{0.35}{Figs/p400/scree.pdf}
     \scr{0.35}{Figs/p400/scree100log.pdf}
-  \caption{Time steps 400 to 415}
+    \caption{Top 24 principal component images (ordered left to right,
+      then top to bottom), capturing 47\% variability of time steps
+      400 to 415 and corresponding scree plot of eigenvalues presented
+      in three ways}
   \label{fig:400}
   \end{center}
 \end{figure}
@@ -197,10 +208,16 @@ We have the following observations about the figures:
   but there are similar modes that occurr at different energy levels in
   different time steps.
 \item The eigenvalues decrease rapidly so that singular vectors beyond
-  about 100 contribute very little to the variability and may
-  represent noise. As a result, arguably only the singular vectors and
-  their weights need to be output to reconstruct the simulation. This
-  is a roughly $5\times$ reduction.
+  about 100 may represent noise. However, partially organized
+  appearance of the component images can persist even through
+  component 200 (not shown).
+\item If components beyond 100 are not interesting to evaluation of a
+  run, then only the singular vectors and their weights, along with
+  the full set of eigenvalues, need to be output to reconstruct the
+  simulation. This is a roughly $5\times$ reduction.
+\item The proportion of variability captured by the top 24 components
+  decreases with time, suggesting that higher-dimensional phenomena
+  are developing as the simulation proceeds.
 \end{itemize}
 Finally, it is possible to construct movies from combinations of modes 
 
