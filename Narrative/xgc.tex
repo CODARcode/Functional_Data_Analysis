@@ -181,10 +181,10 @@ eigenvalues on a linear scale and the right graph shows the top 50
 eigenvalues on a log10 scale.
 
 The right singular vectors correspond to and are plotted on the
-polloidal slice gridpoints, producing the circular images in the
-figures. Each image in reading order (left to right and then top to
-bottom) corresponds to the eigenvalues in decreasing order. The units
-of the displayed vectors are the same as for density potential (dpot)
+polloidal slice gridpoints, producing the 24 circular images in the
+figures. The images are in reading order (left to right and then top to
+bottom) corresponding to the top 24 eigenvalues in decreasing order. The units
+in the images are the same as for density potential (dpot)
 and the legend to the
 right of each shows the dpot values that correspond to the colors.
 
@@ -192,15 +192,17 @@ We have the following observations about the figures:
 \begin{itemize}
 \item The eigenvalues are usually paired and possibly in larger groups
   with larger steps between groups. It may be possible to interpret
-  the groups as various wave energy representations.
+  the groups as various dynamic wave energy representations.
 \item Each of the time steps has a somewhat different decomposition
-  but there common modes that occurr at different energy levels.
+  but there are similar modes that occurr at different energy levels in
+  different time steps.
 \item The eigenvalues decrease rapidly so that singular vectors beyond
   about 100 contribute very little to the variability and may
   represent noise. As a result, arguably only the singular vectors and
   their weights need to be output to reconstruct the simulation. This
   is a roughly $5\times$ reduction.
 \end{itemize}
+Finally, it is possible to construct movies from combinations of modes 
 
 \subsection{Relationship to Tensor Decomposition}
 Because our row dimension includes both time and space (toroidal angle
