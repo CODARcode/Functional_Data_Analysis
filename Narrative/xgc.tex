@@ -216,8 +216,16 @@ rightmost singular
 vectors of the HOSVD. Here we describe some initial tensor
 decomposition results for a similar but smaller data set.
 
-The smaller data set is ...
+The smaller data set, generated from one of small size XGC runs, is prepared as a 3-dimensional tensor, size of  $32\times20\times20,694$. We apply tensor decomposition in the context of data reduction, in which we decompose 3-d matrix with SVD-based tensor decomposition and reconstruct by using only a small subset of components. We compare the data reduction qualities, such as compression ratios and relative errors, depending on the number of components. Figure~\ref{fig:tensor-xgc} shows a series of XGC data reconstructed after tensor decomposition, by using different number of components, ranging from 1 and up to 10.
 
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.32\linewidth]{Figs/tensor-1.pdf}
+  \includegraphics[width=0.32\linewidth]{Figs/tensor-5.pdf}
+  \includegraphics[width=0.32\linewidth]{Figs/tensor-10.pdf}
+  \caption{Tensor decomposition of XGC field data. Images are reconstructed after applying SVD-based tensor decomposition. Different number of components are used, ranging from 1 (left) up to 10 (right). Compression ratios and relative errors are shown in the top.}
+  \label{fig:tensor-xgc}
+\end{figure}
 
 \newpage
 \subsection{Data Transformations Useful for PCA}
