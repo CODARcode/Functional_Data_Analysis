@@ -1,8 +1,11 @@
 \section{Application to Fusion Simulation Data}
 \label{sec:xgc}
-We report on our application to fusion simulation data from the XGC
-code \cite{??}. The resulting data has 480 time steps, each with 32
-equispaced polloidal slices. We perform 4 PCA decompositions of the
+We report on our application to fusion simulation data from the
+gyrokinetic particle code XGC1 \cite{Ku2009}. The full data set
+(provided by Seung-Ho Ku, ADSE12-WDMApp project), is about 800 GB and
+includes both particle data and field data variables such as density
+potential (dpot). The dpot variable contains 480 time steps, each with
+32 equispaced polloidal slices. We perform 4 PCA decompositions of the
 {\it density potential} (dpot) variable indexed by time steps 100,
 200, 300, and 400, by taking the index time step and 15 more steps
 following it to get a total of $32\times 16$ slices, each with 232,011
@@ -33,15 +36,16 @@ those shown in Figures~\ref{fig:100} to \ref{fig:400}, takes roughly
 
 We expect that the resulting speeds are more than sufficient to keep
 up with a running XGC simulation, which takes roughly four seconds per
-time step \cite{XGCpertimestep}, giving 64 seconds for our 16 step
+time step, giving 64 seconds for our 16 step
 ensemble. We envision the decomposition code running as a service
 connected to an ADIOS in memory staging file system. In this service
 scenario, reading the data should be faster than what we experience
 here from a lustre file system. Also, instead of producing plots, the
 decomposed data reduced to some smaller number of components ($\ll$
 512) would be output to the file system in a time that would be less
-than the 6 to 8 seconds taken here to read the data. Next, we comment
-on the results in Figures~\ref{fig:100} to \ref{fig:400}.
+than the 6 to 8 seconds taken here to read the data.
+
+The bottom two plots in each of the Figures~\ref{fig:100} to \ref{fig:400},
 \begin{figure}[tbp]
   \begin{center}
     \slc{0.245}{Figs/p100/pc00001.00100.png}
@@ -77,7 +81,6 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
     two ways}
   \label{fig:100}
 \end{figure}
-
 \begin{figure}[tbp]
   \begin{center}
     \slc{0.245}{Figs/p200/pc00001.00200.png}
@@ -113,7 +116,6 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
     two ways}
   \label{fig:200}
 \end{figure}
-
 \begin{figure}[tbp]
   \begin{center}
     \slc{0.245}{Figs/p300/pc00001.00300.png}
@@ -149,7 +151,6 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
   \end{center}
   \label{fig:300}
 \end{figure}
-
 \begin{figure}[tbp]
   \begin{center}
     \slc{0.245}{Figs/p400/pc00001.00400.png}
@@ -185,8 +186,7 @@ on the results in Figures~\ref{fig:100} to \ref{fig:400}.
   \label{fig:400}
   \end{center}
 \end{figure}
-
-The bottom two scree graphs in each figure show the eigenvalues (squares of
+are scree graphs showing the eigenvalues (squares of
 the singular values) in decreasing order. The left graph shows all 512
 eigenvalues on a linear scale and the right graph shows the top 50
 eigenvalues on a log10 scale.
@@ -246,49 +246,4 @@ The smaller data set, generated from one of small size XGC runs, is prepared as 
   \label{fig:tensor-xgc}
 \end{figure}
 
-\newpage
-\subsection{Data Transformations Useful for PCA}
-\subsection{Box-Cox and Symmetric Power Transformations}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.16\linewidth]{Figs/raw}
-  \includegraphics[width=0.16\linewidth]{Figs/raw_1}
-  \includegraphics[width=0.16\linewidth]{Figs/raw_100}
-  \includegraphics[width=0.16\linewidth]{Figs/raw_200}
-  \includegraphics[width=0.16\linewidth]{Figs/raw_300}
-  \includegraphics[width=0.16\linewidth]{Figs/raw_400}
-  \caption{Histogram of all data followed by a few individual time steps.}
-  \label{fig:hist_raw}
-\end{figure}
-
-\begin{equation}
-  w = sign(x) |x|^{1/5}
-\end{equation}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.16\linewidth]{Figs/tr}
-  \includegraphics[width=0.16\linewidth]{Figs/tr_1}
-  \includegraphics[width=0.16\linewidth]{Figs/tr_100}
-  \includegraphics[width=0.16\linewidth]{Figs/tr_200}
-  \includegraphics[width=0.16\linewidth]{Figs/tr_300}
-  \includegraphics[width=0.16\linewidth]{Figs/tr_400}
-  \caption{Same histograms as in Fig.~\ref{fig:hist_raw} after
-    removing exact zeroes and transformation to $w$.}
-  \label{fig:hist_tr}
-\end{figure}
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.16\linewidth]{Figs/trc}
-  \includegraphics[width=0.16\linewidth]{Figs/trc_1}
-  \includegraphics[width=0.16\linewidth]{Figs/trc_100}
-  \includegraphics[width=0.16\linewidth]{Figs/trc_200}
-  \includegraphics[width=0.16\linewidth]{Figs/trc_300}
-  \includegraphics[width=0.16\linewidth]{Figs/trc_400}
-  \caption{Same histograms as in Fig.~\ref{fig:hist_tr} after
-    removing inlying anomalies.}
-  \label{fig:hist_trc}
-\end{figure}
 
