@@ -1,3 +1,23 @@
-\section{Conclusions}
+\section{Conclusions and Future Work}
 \label{sec:concl}
- 
+We describe fast PCA decomposition algorithms and their application to
+XGC fusion simulation data. The decompositions presented show
+interesting component structure that describes various modes of
+density potential dynamics. Interpretation of the modes still requires
+more interaction and input from fusion scientists. We plan to continue
+working with Seung-Ho Ku and others in the ECP fusion application. As
+the decompositions are applicable to other spatiotemporal data, such
+as climate where they have a long history, we also plan to start
+application to data from an additional ECP application project.
+
+Further activity will develop software to produce movies from mode
+combinations. This is possible due to their additive nature and we
+expect it to provide novel tools for interpreting variability modes
+in spatiotemporal data.
+
+Our current inplementation relies on an R workflow driving HPC
+libraries via pbdR infrastructure. Because of its capability with
+ADIOS readers, custom parallel workflows for data analysis and
+reduction can be constructed quickly and at a very high level to
+provide services that can run in situ exchanging data in a staging
+ADIOS workflow.

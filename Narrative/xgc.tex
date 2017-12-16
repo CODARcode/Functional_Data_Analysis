@@ -1,34 +1,39 @@
 \section{Application to Fusion Simulation Data}
 \label{sec:xgc}
 We report on our application to fusion simulation data from the
-gyrokinetic particle code XGC1 \cite{Ku2009}. The full data set
-(provided by Seung-Ho Ku, ADSE12-WDMApp project), is about 800 GB and
-includes both particle data and field data variables such as density
-potential (dpot). The dpot variable contains 480 time steps, each with
-32 equispaced polloidal slices. We perform 4 PCA decompositions of the
-{\it density potential} (dpot) variable indexed by time steps 100,
-200, 300, and 400, by taking the index time step and 15 more steps
-following it to get a total of $32\times 16$ slices, each with 232,011
-gridpoints. This results in a $256\times 232,011$ matrix, which is
-very skinny and takes roughly 1 GB memory.
+gyrokinetic particle code XGC1 \cite{Ku2009}. We are working with
+Seung-Ho Ku, from the ECP ADSE12-WDMApp project, who provided a data
+set from an XGC1 run. The data set is about 800 GB and includes both
+particle data and several field variables. We use density potential
+(dpot) over 480 time steps, each with 32 equispaced polloidal
+slices. We perform 4 PCA decompositions of the {\it density potential}
+(dpot) variable indexed by time steps 100, 200, 300, and 400, by
+taking the index time step and 15 more steps following it to get a
+total of $32\times 16$ slices, each with 232,011 gridpoints. This
+results in a $256\times 232,011$ matrix, which is very skinny and
+takes up roughly 1 GB memory.
 
-The decision to construct the PCA input matrix as described is
+The decision to construct the PCA input matrix as described, is
 motivated by the need to view its rows as sample points from a
 stationary distribution. It is reasonable to assume that the slices in
 a single time step are from the same high dimensional (specifically,
 232,011 dimensional) distribution that can be characterized by its top
-principal components.
+principal components. We use 16 time steps, which we consider small
+enough to retain stationarity while providing a larger diversity of
+states to be ergodic.
 
 \subsection{Computation with Fast Skinny PCA Algorithm}
 Our algorithm is implemented in R with pbdR infrastructure
 \cite{Schmidt2017}, which for the specific skinny matrix computations
 is a workflow driving MPI, LAPACK, BLAS, and ADIOS library
-support. Our runs are done on Oak Redge Leadership Computing
-Facility's (OLCF) Rhea, which is a 512 node commodity cluster with
-dual Intel® Xeon® E5-2650 @ 2.0 GHz giving 16 cores per node.
+support. This means that the majority of the heavy lifting of the
+algorithm takes place in FORTRAN and C language implementations. Our
+runs are done on Oak Ridge Leadership Computing Facility's (OLCF)
+Rhea, which is a 512 node commodity cluster with dual Intel® Xeon®
+E5-2650 @ 2.0 GHz giving 16 cores per node.
 
-Running on 8 nodes (128 cores), it takes
-approximately 6 to 8 seconds to read the data from a lustre file
+Running on 8 nodes (128 cores), takes
+approximately 6 to 8 seconds to read the data from a Lustre file
 system, and under 2 seconds to perform the decomposition. Production
 of the 512 resulting plots of right singular vectors and scree plots, like
 those shown in Figures~\ref{fig:100} to \ref{fig:400}, takes roughly
@@ -36,16 +41,18 @@ those shown in Figures~\ref{fig:100} to \ref{fig:400}, takes roughly
 
 We expect that the resulting speeds are more than sufficient to keep
 up with a running XGC simulation, which takes roughly four seconds per
-time step, giving 64 seconds for our 16 step
-ensemble. We envision the decomposition code running as a service
-connected to an ADIOS in memory staging file system. In this service
-scenario, reading the data should be faster than what we experience
-here from a lustre file system. Also, instead of producing plots, the
-decomposed data reduced to some smaller number of components ($\ll$
-512) would be output to the file system in a time that would be less
-than the 6 to 8 seconds taken here to read the data.
+time step, giving 64 seconds for our 16 time step ensemble. We
+envision the decomposition code running as a service connected to an
+ADIOS in memory staging file system. In this service scenario, reading
+the data should be faster than what we experience here from a Lustre
+file system. Also, instead of producing plots, the decomposed data
+reduced to some smaller number of components ($\ll$ 512) would be
+output to the file system in a time that would be less than the 6 to 8
+seconds taken here to read the original data. Adding up the
+components, we would average about 1 second per time step.
 
-The bottom two plots in each of the Figures~\ref{fig:100} to \ref{fig:400},
+We next describe the results. The bottom two plots in each of the
+Figures~\ref{fig:100} to \ref{fig:400},
 \begin{figure}[tbp]
   \begin{center}
     \slc{0.245}{Figs/p100/pc00001.00100.png}
@@ -205,7 +212,7 @@ We have the following observations about the figures:
   with larger steps between groups. It may be possible to interpret
   the groups as various dynamic wave energy representations.
 \item Each of the time steps has a somewhat different decomposition
-  but there are similar modes that occurr at different energy levels in
+  but there are similar modes that occur at different energy levels in
   different time steps.
 \item The eigenvalues decrease rapidly so that singular vectors beyond
   about 100 may represent noise. However, partially organized
@@ -219,7 +226,6 @@ We have the following observations about the figures:
   decreases with time, suggesting that higher-dimensional phenomena
   are developing as the simulation proceeds.
 \end{itemize}
-Finally, it is possible to construct movies from combinations of modes 
 
 \subsection{Relationship to Tensor Decomposition}
 Because our row dimension includes both time and space (toroidal angle
@@ -231,18 +237,31 @@ of the right singular vectors are the first iteration of the tensor
 decomposition, sometimes referred to as the higher order singular
 value decomposition (HOSVD) \cite[p.1264]{DeLathauwer2000}. That is,
 the right singular vectors from our SVD, displayed as images, are the
-rightmost singular 
-vectors of the HOSVD. Here we describe some initial tensor
-decomposition results for a similar but smaller data set.
+rightmost singular vectors of the HOSVD. Here we describe some initial
+tensor decomposition and reconstruction results for a similar but
+smaller data set.
 
-The smaller data set, generated from one of small size XGC runs, is prepared as a 3-dimensional tensor, size of  $32\times20\times20,694$. We apply tensor decomposition in the context of data reduction, in which we decompose 3-d matrix with SVD-based tensor decomposition and reconstruct by using only a small subset of components. We compare the data reduction qualities, such as compression ratios and relative errors, depending on the number of components. Figure~\ref{fig:tensor-xgc} shows a series of XGC data reconstructed after tensor decomposition, by using different number of components, ranging from 1 and up to 10.
+The smaller data set, generated by a small XGC run, is
+prepared as a 3-dimensional tensor, with dimensions
+$32\times20\times20,694$. We apply tensor decomposition in the context
+of data reduction, in which we decompose the 3-d array with SVD-based
+tensor decomposition and reconstruct by using only a small subset of
+components. We compare the data reduction qualities, such as
+compression ratios and relative errors, depending on the number of
+components. Figure~\ref{fig:tensor-xgc} shows a series of XGC data
+reconstructed after tensor decomposition by using different numbers of
+components, ranging from 1 up to 10.
 
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.32\linewidth]{Figs/tensor-1.pdf}
   \includegraphics[width=0.32\linewidth]{Figs/tensor-5.pdf}
   \includegraphics[width=0.32\linewidth]{Figs/tensor-10.pdf}
-  \caption{Tensor decomposition of XGC field data. Images are reconstructed after applying SVD-based tensor decomposition. Different number of components are used, ranging from 1 (left) up to 10 (right). Compression ratios and relative errors are shown in the top.}
+  \caption{Tensor decomposition of XGC field data. Images are
+    reconstructed after applying SVD-based tensor
+    decomposition. Different number of components are used, ranging
+    from 1 (left) up to 10 (right). Compression ratios and relative
+    errors are shown in the top.}
   \label{fig:tensor-xgc}
 \end{figure}
 
